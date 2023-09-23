@@ -1,29 +1,30 @@
-use std::collections::HashMap;
-use std::time::{Duration, Instant};
-use std::cmp::{Eq, PartialEq};
-use std::hash::Hash;
 use std::borrow::Borrow;
+use std::cmp::{Eq, PartialEq};
+use std::collections::HashMap;
+use std::hash::Hash;
 use std::thread;
-
+use std::time::{Duration, Instant};
 
 struct TTLCache<K, V> {
-    cache: HashMap<K, (Instant, V)>
+    cache: HashMap<K, (Instant, V)>,
 }
 
 impl<K, V> TTLCache<K, V> {
     pub fn new() -> Self {
-        Self { cache: HashMap::new() }
+        Self {
+            cache: HashMap::new(),
+        }
     }
 }
 
 impl<K, V> TTLCache<K, V>
 where
-    K: Eq + PartialEq + Hash
+    K: Eq + PartialEq + Hash,
 {
     fn has<Q>(&self, key: &Q) -> bool
     where
         K: Borrow<Q>,
-        Q: Hash + Eq + ?Sized
+        Q: Hash + Eq + ?Sized,
     {
         self.cache.contains_key(key)
     }
@@ -33,9 +34,9 @@ where
         if self.has(&key) {
             let old = self.cache.insert(key, (now + ttl, v)).unwrap();
             if now < old.0 {
-                return Some(old.1)
+                return Some(old.1);
             } else {
-                return None
+                return None;
             }
         } else {
             self.cache.insert(key, (now + ttl, v));
@@ -46,12 +47,12 @@ where
     fn get<Q>(&self, key: &Q) -> Option<&V>
     where
         K: Borrow<Q>,
-        Q: Hash + Eq + ?Sized
+        Q: Hash + Eq + ?Sized,
     {
         let now = Instant::now();
         if let Some(ref v) = self.cache.get(key) {
             if now < v.0 {
-                return Some(&v.1)
+                return Some(&v.1);
             }
         }
         None
@@ -60,16 +61,16 @@ where
     fn get_mut<Q>(&mut self, key: &Q) -> Option<&mut V>
     where
         K: Borrow<Q>,
-        Q: Hash + Eq + ?Sized
+        Q: Hash + Eq + ?Sized,
     {
         let now = Instant::now();
-       if let Some(v) = self.cache.get(key) {
+        if let Some(v) = self.cache.get(key) {
             if now < v.0 {
-                return Some(&mut self.cache.get_mut(key).unwrap().1)
+                return Some(&mut self.cache.get_mut(key).unwrap().1);
             }
             self.cache.remove_entry(key);
         }
-        return None
+        return None;
     }
 }
 
@@ -120,4 +121,3 @@ mod tests {
         assert_eq!(Some(&"foobar".as_bytes().to_vec()), c.get("bar"))
     }
 }
-
