@@ -2,10 +2,9 @@ use std::borrow::Borrow;
 use std::cmp::{Eq, PartialEq};
 use std::collections::HashMap;
 use std::hash::Hash;
-use std::thread;
 use std::time::{Duration, Instant};
 
-struct TTLCache<K, V> {
+pub struct TTLCache<K, V> {
     cache: HashMap<K, (Instant, V)>,
 }
 
@@ -29,7 +28,7 @@ where
         self.cache.contains_key(key)
     }
 
-    fn insert(&mut self, key: K, v: V, ttl: Duration) -> Option<V> {
+    pub fn insert(&mut self, key: K, v: V, ttl: Duration) -> Option<V> {
         let now = Instant::now();
         if self.has(&key) {
             let old = self.cache.insert(key, (now + ttl, v)).unwrap();
@@ -44,7 +43,7 @@ where
         }
     }
 
-    fn get<Q>(&self, key: &Q) -> Option<&V>
+    pub fn get<Q>(&self, key: &Q) -> Option<&V>
     where
         K: Borrow<Q>,
         Q: Hash + Eq + ?Sized,
@@ -58,7 +57,7 @@ where
         None
     }
 
-    fn get_mut<Q>(&mut self, key: &Q) -> Option<&mut V>
+    pub fn get_mut<Q>(&mut self, key: &Q) -> Option<&mut V>
     where
         K: Borrow<Q>,
         Q: Hash + Eq + ?Sized,
@@ -77,6 +76,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::thread;
 
     #[test]
     fn it_works() {
