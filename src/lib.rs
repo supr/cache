@@ -20,7 +20,24 @@ impl<K, V> TTLCache<K, V>
 where
     K: Eq + PartialEq + Hash,
 {
-    fn contains_key<Q>(&self, key: &Q) -> bool
+    /// Returns `true` if the map contains a value for the specified key
+    ///
+    /// The key may be any borrowed form of the cache's key type, but
+    /// [`Hash`] and [`Eq`] on the borrowed form *must* match those for
+    /// the key type
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use cache::TTLCache;
+    ///
+    /// let mut c = TTLCache::new();
+    /// c.insert("1", "a", None);
+    /// assert_eq!(true, c.contains_key("1"));
+    /// assert_eq!(false, c.contains_key("2"));
+    /// ```
+    #[inline]
+    pub fn contains_key<Q>(&self, key: &Q) -> bool
     where
         K: Borrow<Q>,
         Q: Hash + Eq + ?Sized,
@@ -42,6 +59,23 @@ where
         None
     }
 
+    /// Returns a reference to the value corresponding to the key.
+    ///
+    /// The key may be any borrowed form of the cache's key type, but
+    /// [`Hash`] and [`Eq`] on the borrowed form *must* match those for
+    /// the jey type.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::time::Duration;
+    /// use cache::TTLCache;
+    ///
+    /// let mut c = TTLCache::new();
+    /// c.insert("foo", "bar".as_bytes().to_vec(), Some(Duration::from_secs(10)));
+    /// assert_eq!(Some(&"bar".as_bytes().to_vec()), c.get("foo"));
+    /// ```
+    #[inline]
     pub fn get<Q>(&self, key: &Q) -> Option<&V>
     where
         K: Borrow<Q>,
@@ -63,6 +97,25 @@ where
         None
     }
 
+    /// Returns a reference to the value corresponding to the key.
+    ///
+    /// The key may be any borrowed form of the cache's key type, but
+    /// [`Hash`] and [`Eq`] on the borrowed form *must* match those for
+    /// the jey type.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::time::Duration;
+    /// use cache::TTLCache;
+    ///
+    /// let mut c = TTLCache::new();
+    /// c.insert("1", "bar".as_bytes().to_vec(), Some(Duration::from_secs(10)));
+    /// if let Some(x) = c.get_mut("1") {
+    ///     *x = "foo".as_bytes().to_vec();
+    /// }
+    /// assert_eq!(Some(&"foo".as_bytes().to_vec()), c.get("1"));
+    /// ```
     pub fn get_mut<Q>(&mut self, key: &Q) -> Option<&mut V>
     where
         K: Borrow<Q>,
