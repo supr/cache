@@ -20,7 +20,7 @@ impl<K, V> TTLCache<K, V>
 where
     K: Eq + PartialEq + Hash,
 {
-    fn has<Q>(&self, key: &Q) -> bool
+    fn contains_key<Q>(&self, key: &Q) -> bool
     where
         K: Borrow<Q>,
         Q: Hash + Eq + ?Sized,
@@ -91,7 +91,7 @@ mod tests {
         let c: TTLCache<&str, Vec<u8>> = TTLCache::new();
         let key = "bar";
 
-        assert_eq!(false, c.has(key));
+        assert_eq!(false, c.contains_key(key));
     }
 
     #[test]
@@ -105,7 +105,7 @@ mod tests {
             Some(Duration::from_secs(10)),
         );
 
-        assert_eq!(true, c.has("bar"));
+        assert_eq!(true, c.contains_key("bar"));
     }
 
     #[test]
@@ -118,7 +118,7 @@ mod tests {
             "foo".as_bytes().to_vec(),
             Some(Duration::from_micros(500)),
         );
-        assert_eq!(true, c.has("bar"));
+        assert_eq!(true, c.contains_key("bar"));
         thread::sleep(Duration::from_secs(1));
         assert_eq!(None, c.get("bar"));
     }
